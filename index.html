@@ -2,191 +2,41 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Todoリスト</title>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Noto+Serif+JP&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
   <style>
     body {
       font-family: 'Noto Serif JP', serif;
-      background-image: url("img/bg1.jpg");
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
+      background: #f6f6f6;
       margin: 0;
       padding: 0;
       color: #333;
+      font-size: 16px;
     }
 
     .container {
       max-width: 700px;
-      margin: 60px auto;
+      margin: 40px auto;
       background-color: rgba(255, 255, 255, 0.95);
       border-radius: 16px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      padding: 40px;
+      padding: 20px;
     }
 
     h1 {
       font-family: 'Playfair Display', serif;
-      font-size: 2.4rem;
+      font-size: 2rem;
       text-align: center;
       margin-bottom: 20px;
-    }
-
-    form {
-      margin-bottom: 24px;
-    }
-
-    .input-container {
-      position: relative;
-      width: 100%;
-    }
-
-    .input-container input[type="text"] {
-      padding: 10px 50px 10px 14px;
-      font-size: 1rem;
-      border: 2px solid #333;
-      border-radius: 999px;
-      width: 100%;
-      box-sizing: border-box;
-    }
-
-    .add-btn {
-      position: absolute;
-      top: 50%;
-      right: 8px;
-      transform: translateY(-50%);
-      width: 36px;
-      height: 36px;
-      font-size: 1.2rem;
-      border-radius: 50%;
-      padding: 0;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: 0.2s ease;
-    }
-
-    .add-btn:hover {
-      background-color: #218838;
-      transform: translateY(-50%) scale(1.05);
-    }
-
-    #bg-upload {
-      display: none;
-    }
-
-    .task-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    .task {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: #fdfdfd;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      cursor: grab;
-      position: relative;
-      opacity: 1;
-      transition: opacity 0.3s ease;
-    }
-
-    .task:active {
-      cursor: grabbing;
-    }
-
-    .fade-out {
-      opacity: 0 !important;
-    }
-
-    .task-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-grow: 1;
-    }
-
-    .task-left label {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      cursor: pointer;
-    }
-
-    .task-left input[type="checkbox"] {
-      width: 22px;
-      height: 22px;
-      cursor: pointer;
-      accent-color: #28a745;
-    }
-
-    .completed span {
-      text-decoration: line-through;
-      color: gray;
-    }
-
-    .task-right {
-      display: flex;
-      gap: 6px;
-    }
-
-    .edit-btn, .delete-btn {
-      background-color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 1.1rem;
-      padding: 6px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-      transition: transform 0.2s ease;
-    }
-
-    .edit-btn:hover {
-      background-color: #e0f0ff;
-      color: #007bff;
-      transform: scale(1.1);
-    }
-
-    .delete-btn:hover {
-      background-color: #ffe0e0;
-      color: #dc3545;
-      transform: scale(1.1);
-    }
-
-    .sparkle {
-      position: absolute;
-      left: 26px;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: white;
-      box-shadow: 0 0 10px white, 0 0 20px #ffc;
-      animation: sparkle 0.6s ease-out forwards;
-      pointer-events: none;
-      z-index: 10;
-    }
-
-    @keyframes sparkle {
-      0% { opacity: 1; transform: scale(1); }
-      50% { transform: scale(1.6); }
-      100% { opacity: 0; transform: scale(0); }
     }
 
     .menu-button {
       position: fixed;
       top: 16px;
       left: 16px;
-      width: 40px;
-      height: 40px;
+      width: 44px;
+      height: 44px;
       border-radius: 50%;
       background-color: #444;
       display: flex;
@@ -217,41 +67,113 @@
 
     .menu.show {
       display: flex;
-      animation: floatBounceFast 0.3s ease-in-out;
-    }
-
-    .menu.hiding {
-      animation: floatBounceFastReverse 0.3s ease-in-out;
-    }
-
-    @keyframes floatBounceFast {
-      0% { opacity: 0; transform: translateY(-12px) scale(0.95); }
-      40% { opacity: 1; transform: translateY(4px) scale(1.02); }
-      70% { transform: translateY(-2px) scale(0.99); }
-      100% { transform: translateY(0) scale(1); }
-    }
-
-    @keyframes floatBounceFastReverse {
-      0% { opacity: 1; transform: translateY(0) scale(1); }
-      30% { transform: translateY(-2px) scale(0.99); }
-      60% { transform: translateY(4px) scale(1.02); }
-      100% { opacity: 0; transform: translateY(-12px) scale(0.95); }
     }
 
     .menu-item {
       background-color: white;
       color: #333;
-      padding: 6px 12px;
-      font-size: 14px;
+      padding: 10px;
+      font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 6px;
       cursor: pointer;
       text-align: center;
-      transition: background-color 0.2s;
     }
 
-    .menu-item:hover {
-      background-color: #f0f0f0;
+    .input-container {
+      position: relative;
+      width: 100%;
+    }
+
+    textarea#id_title {
+      padding: 10px 60px 10px 14px;
+      font-size: 1.1rem;
+      border: 2px solid #333;
+      border-radius: 999px;
+      width: 100%;
+      box-sizing: border-box;
+      resize: none;
+      line-height: 1.5;
+      min-height: 48px;
+      overflow: hidden;
+    }
+
+    .add-btn {
+      position: absolute;
+      top: 50%;
+      right: 8px;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      font-size: 1.3rem;
+      border-radius: 50%;
+      padding: 0;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    .task-list {
+      list-style: none;
+      padding: 0;
+      margin-top: 24px;
+    }
+
+    .task {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      background: #fdfdfd;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      word-break: break-word;
+    }
+
+    .task-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-grow: 1;
+      flex-wrap: wrap;
+      word-break: break-word;
+      max-width: calc(100% - 100px);
+    }
+
+    .task-left input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+      accent-color: #28a745;
+    }
+
+    .task-left span {
+      word-break: break-word;
+      display: inline-block;
+    }
+
+    .task-right {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .edit-btn, .delete-btn {
+      background-color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 6px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .completed span {
+      text-decoration: line-through;
+      color: gray;
     }
   </style>
 </head>
@@ -259,6 +181,7 @@
   <div class="menu-button" id="menuBtn"><span></span><span></span><span></span></div>
   <div class="menu" id="menu">
     <label for="bg-upload" class="menu-item">背景変更</label>
+    <input type="file" id="bg-upload" accept="image/*" style="display:none" onchange="setCustomBackground(this)" />
     <button class="menu-item" onclick="resetBackground()">背景リセット</button>
   </div>
 
@@ -266,24 +189,16 @@
     <h1>Todoリスト</h1>
     <form id="todo-form">
       <div class="input-container">
-        <input type="text" id="id_title" placeholder="やることを入力" />
+        <textarea id="id_title" placeholder="やることを入力" rows="1"></textarea>
         <button type="submit" class="add-btn">＋</button>
       </div>
-      <input type="file" id="bg-upload" accept="image/*" onchange="setCustomBackground(this)" />
     </form>
     <ul id="task-list" class="task-list"></ul>
   </div>
 
   <script>
-    const DEFAULT_BG = "img/bg1.jpg";
+    const DEFAULT_BG = null;
     let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
-
-    function sparkleEffect(taskElement) {
-      const sparkle = document.createElement("div");
-      sparkle.className = "sparkle";
-      taskElement.appendChild(sparkle);
-      setTimeout(() => sparkle.remove(), 600);
-    }
 
     function renderTasks() {
       const list = document.getElementById("task-list");
@@ -295,33 +210,17 @@
         const left = document.createElement("div");
         left.className = "task-left";
 
-        const label = document.createElement("label");
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = task.completed;
         checkbox.addEventListener("change", () => {
           tasks[index].completed = checkbox.checked;
           localStorage.setItem("tasks", JSON.stringify(tasks));
-          sparkleEffect(li);
           renderTasks();
         });
 
         const span = document.createElement("span");
         span.textContent = task.title;
-        span.style.display = "inline";
-
-        const inputEdit = document.createElement("input");
-        inputEdit.type = "text";
-        inputEdit.value = task.title;
-        inputEdit.className = "edit-input";
-        inputEdit.style.display = "none";
-        inputEdit.addEventListener("blur", () => saveEdit(index, inputEdit.value));
-        inputEdit.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            saveEdit(index, inputEdit.value);
-          }
-        });
 
         const right = document.createElement("div");
         right.className = "task-right";
@@ -330,27 +229,25 @@
         editBtn.className = "edit-btn";
         editBtn.innerHTML = "✏️";
         editBtn.addEventListener("click", () => {
-          span.style.display = "none";
-          inputEdit.style.display = "inline-block";
-          inputEdit.focus();
+          const newText = prompt("新しいタスク内容", task.title);
+          if (newText !== null) {
+            tasks[index].title = newText.trim();
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            renderTasks();
+          }
         });
 
         const delBtn = document.createElement("button");
         delBtn.className = "delete-btn";
         delBtn.innerHTML = "🗑️";
         delBtn.addEventListener("click", () => {
-          li.classList.add("fade-out");
-          setTimeout(() => {
-            tasks.splice(index, 1);
-            localStorage.setItem("tasks", JSON.stringify(tasks));
-            renderTasks();
-          }, 300);
+          tasks.splice(index, 1);
+          localStorage.setItem("tasks", JSON.stringify(tasks));
+          renderTasks();
         });
 
-        label.appendChild(checkbox);
-        label.appendChild(span);
-        left.appendChild(label);
-        left.appendChild(inputEdit);
+        left.appendChild(checkbox);
+        left.appendChild(span);
         right.appendChild(editBtn);
         right.appendChild(delBtn);
         li.appendChild(left);
@@ -359,13 +256,32 @@
       });
     }
 
-    function saveEdit(index, text) {
-      if (text.trim()) {
-        tasks[index].title = text.trim();
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-      }
-      renderTasks();
+    function autoResizeTextarea(textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${textarea.scrollHeight}px`;
     }
+
+    document.getElementById("todo-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = document.getElementById("id_title");
+      const title = input.value.trim();
+      if (!title) return;
+      tasks.push({ title, completed: false });
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      input.value = "";
+      autoResizeTextarea(input);
+      renderTasks();
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderTasks();
+      const input = document.getElementById("id_title");
+      input.addEventListener("input", () => autoResizeTextarea(input));
+      input.addEventListener("keydown", () => setTimeout(() => autoResizeTextarea(input), 0));
+
+      const savedBG = localStorage.getItem("background");
+      if (savedBG) document.body.style.backgroundImage = `url('${savedBG}')`;
+    });
 
     function setCustomBackground(input) {
       const file = input.files[0];
@@ -379,64 +295,19 @@
     }
 
     function resetBackground() {
-      document.body.style.backgroundImage = `url('${DEFAULT_BG}')`;
+      document.body.style.backgroundImage = DEFAULT_BG ? `url('${DEFAULT_BG}')` : "none";
       localStorage.removeItem("background");
     }
-
-    document.getElementById("todo-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const input = document.getElementById("id_title");
-      const title = input.value.trim();
-      if (!title) return;
-      tasks.push({ title, completed: false });
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      input.value = "";
-      renderTasks();
-    });
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const savedBG = localStorage.getItem("background");
-      if (savedBG) document.body.style.backgroundImage = `url('${savedBG}')`;
-      renderTasks();
-
-      Sortable.create(document.getElementById("task-list"), {
-        animation: 150,
-        ghostClass: "dragging",
-        onEnd: () => {
-          const newOrder = [];
-          document.querySelectorAll(".task span").forEach(el => newOrder.push(el.textContent));
-          tasks.sort((a, b) => newOrder.indexOf(a.title) - newOrder.indexOf(b.title));
-          localStorage.setItem("tasks", JSON.stringify(tasks));
-        }
-      });
-    });
 
     const menuBtn = document.getElementById("menuBtn");
     const menu = document.getElementById("menu");
     menuBtn.addEventListener("click", () => {
-      if (menu.classList.contains("show")) {
-        menu.classList.remove("show");
-        menu.classList.add("hiding");
-        menu.addEventListener("animationend", () => {
-          menu.classList.remove("hiding");
-          menu.style.display = "none";
-        }, { once: true });
-      } else {
-        menu.style.display = "flex";
-        setTimeout(() => menu.classList.add("show"), 10);
-      }
+      menu.classList.toggle("show");
     });
 
     document.addEventListener("click", (e) => {
       if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
-        if (menu.classList.contains("show")) {
-          menu.classList.remove("show");
-          menu.classList.add("hiding");
-          menu.addEventListener("animationend", () => {
-            menu.classList.remove("hiding");
-            menu.style.display = "none";
-          }, { once: true });
-        }
+        menu.classList.remove("show");
       }
     });
   </script>
