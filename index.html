@@ -1,315 +1,235 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Todoリスト</title>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display&family=Noto+Serif+JP&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      font-family: 'Noto Serif JP', serif;
-      background: #f6f6f6;
-      margin: 0;
-      padding: 0;
-      color: #333;
-      font-size: 16px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Todoリスト</title>
 
-    .container {
-      max-width: 700px;
-      margin: 40px auto;
-      background-color: rgba(255, 255, 255, 0.95);
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      padding: 20px;
-    }
+<!-- フォント -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
+<!-- SortableJS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
-    h1 {
-      font-family: 'Playfair Display', serif;
-      font-size: 2rem;
-      text-align: center;
-      margin-bottom: 20px;
-    }
+<style>
+:root{
+  --bg:#f7f8fa;            --sidebar:#fff;        --sidebar-hover:#f1f2f4;
+  --card:#fff;             --card-hover:#f6f7f9;
+  --text:#222;             --subtext:#666;        --icon:#7b7d89;
+  --accent:#19c37d;        --danger:#dc4f4f;
+  --add-btn:#111;          --add-btn-hover:#2a2a2a;
+  --focus:#111;
+  --shadow-lg:0 12px 28px rgba(0,0,0,.12);
+  --shadow-sm:0 2px 8px   rgba(0,0,0,.08);
+}
+body.dark{
+  --bg:#343541;            --sidebar:#202123;     --sidebar-hover:#26272a;
+  --card:#444654;          --card-hover:#51535f;
+  --text:#f2f2f7;          --subtext:#b5b6c2;     --icon:#c9cad1;
+  --shadow-lg:0 16px 34px rgba(0,0,0,.35);
+  --shadow-sm:0 3px 10px rgba(0,0,0,.18);
+}
 
-    .menu-button {
-      position: fixed;
-      top: 16px;
-      left: 16px;
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background-color: #444;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      cursor: pointer;
-      z-index: 999;
-    }
+/* ---------- RESET & BASE ---------- */
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Inter','Noto Sans JP',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100vh;display:flex;justify-content:center;align-items:flex-start;
+  font-size:15px;line-height:1.55;letter-spacing:.01em;
+  transition:background .3s,color .3s;
+}
 
-    .menu-button span {
-      width: 16px;
-      height: 3px;
-      background-color: white;
-      margin: 2px 0;
-      border-radius: 2px;
-    }
+/* ---------- Hamburger ---------- */
+.menu-button{
+  position:fixed;top:12px;left:12px;width:36px;height:36px;border-radius:6px;
+  background:var(--sidebar);
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;
+  cursor:pointer;z-index:1000;box-shadow:var(--shadow-sm);transition:background .25s;
+}
+.menu-button:hover{background:var(--sidebar-hover)}
+.menu-button span{width:14px;height:2px;border-radius:1px;background:var(--text)}
 
-    .menu {
-      position: fixed;
-      top: 72px;
-      left: 16px;
-      z-index: 998;
-      display: none;
-      flex-direction: column;
-      gap: 8px;
-    }
+/* ---------- Sidebar ---------- */
+.menu{
+  position:fixed;top:0;left:0;width:205px;height:100vh;
+  padding:72px 16px 20px;background:var(--sidebar);
+  transform:translateX(-110%);
+  transition:transform .35s cubic-bezier(.25,.8,.25,1);
+  display:flex;flex-direction:column;gap:8px;z-index:999;box-shadow:var(--shadow-lg)
+}
+.menu.show{transform:translateX(0)}
+.menu-item{
+  background:var(--card-hover);border:none;border-radius:8px;
+  padding:9px;text-align:center;font-size:.85rem;cursor:pointer;box-shadow:var(--shadow-sm);
+  transition:background .25s;color:var(--text)
+}
+.menu-item:hover{background:var(--sidebar-hover)}
+.menu hr{border:none;border-top:1px solid rgba(0,0,0,.08);margin:3px 0}
+body.dark .menu hr{border-top:1px solid #50525e}
 
-    .menu.show {
-      display: flex;
-    }
+/* ---------- Card ---------- */
+.container{
+  width:clamp(320px,94vw,640px);margin:72px 0 32px;padding:24px 22px;
+  background:var(--card);border-radius:10px;box-shadow:var(--shadow-lg);
+  transition:background .3s;text-align:center
+}
+h1{font-size:1.45rem;font-weight:600;margin-bottom:1.1rem}
 
-    .menu-item {
-      background-color: white;
-      color: #333;
-      padding: 10px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: center;
-    }
+/* ---------- Input & Add btn ---------- */
+.input-container{position:relative;margin-bottom:1.2rem}
+textarea#id_title{
+  width:100%;min-height:34px;resize:none;
+  border:1px solid var(--sidebar-hover);border-radius:6px;
+  background:var(--card-hover);color:var(--text);
+  font-size:.95rem;line-height:1.35;padding:6px 46px 6px 12px;
+  outline:none;transition:border .2s,background .25s
+}
+textarea#id_title:focus{border-color:var(--focus)}
+textarea#id_title::placeholder{color:var(--subtext);opacity:.7}
 
-    .input-container {
-      position: relative;
-      width: 100%;
-    }
+.add-btn{
+  position:absolute;top:43%;right:8px;transform:translateY(-50%);
+  width:34px;height:34px;border:none;border-radius:50%;
+  background:var(--add-btn);color:#fff;font-size:1.35rem;font-weight:600;
+  display:flex;justify-content:center;align-items:center;cursor:pointer;
+  box-shadow:0 4px 8px rgba(0,0,0,.22);
+  transition:transform .2s,box-shadow .2s,background .2s
+}
+.add-btn:hover{
+  background:var(--add-btn-hover);
+  transform:translateY(-50%) scale(1.05);
+  box-shadow:0 6px 12px rgba(0,0,0,.24)
+}
 
-    textarea#id_title {
-      padding: 10px 60px 10px 14px;
-      font-size: 1.1rem;
-      border: 2px solid #333;
-      border-radius: 999px;
-      width: 100%;
-      box-sizing: border-box;
-      resize: none;
-      line-height: 1.5;
-      min-height: 48px;
-      overflow: hidden;
-    }
-
-    .add-btn {
-      position: absolute;
-      top: 50%;
-      right: 8px;
-      transform: translateY(-50%);
-      width: 40px;
-      height: 40px;
-      font-size: 1.3rem;
-      border-radius: 50%;
-      padding: 0;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    .task-list {
-      list-style: none;
-      padding: 0;
-      margin-top: 24px;
-    }
-
-    .task {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      background: #fdfdfd;
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-      word-break: break-word;
-    }
-
-    .task-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-grow: 1;
-      flex-wrap: wrap;
-      word-break: break-word;
-      max-width: calc(100% - 100px);
-    }
-
-    .task-left input[type="checkbox"] {
-      width: 22px;
-      height: 22px;
-      cursor: pointer;
-      accent-color: #28a745;
-    }
-
-    .task-left span {
-      word-break: break-word;
-      display: inline-block;
-    }
-
-    .task-right {
-      display: flex;
-      gap: 6px;
-      margin-top: 8px;
-    }
-
-    .edit-btn, .delete-btn {
-      background-color: white;
-      border: none;
-      cursor: pointer;
-      font-size: 1.1rem;
-      padding: 6px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .completed span {
-      text-decoration: line-through;
-      color: gray;
-    }
-  </style>
+/* ---------- Task card ---------- */
+.task-list{list-style:none;margin:0;padding:0}
+.task{
+  background:var(--card-hover);border-radius:6px;
+  padding:10px 12px;margin-bottom:8px;
+  display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+  box-shadow:var(--shadow-sm);transition:background .25s,opacity .25s,transform .25s;
+  opacity:0;transform:translateY(5px)
+}
+.task.show{opacity:1;transform:translateY(0)}
+.task.exit{opacity:0;transform:translateY(5px)}
+.task:hover{background:var(--sidebar-hover)}
+.task-left{display:flex;align-items:center;gap:10px;flex-grow:1;max-width:calc(100% - 84px)}
+.task-left input[type="checkbox"]{width:16px;height:16px;cursor:pointer;accent-color:var(--accent)}
+.task-left span{word-break:break-word;color:var(--text)}
+.completed span{text-decoration:line-through;color:var(--subtext)}
+.task-right{display:flex;gap:6px;margin-top:4px}
+.icon-btn{
+  width:28px;height:28px;border:none;border-radius:5px;
+  display:flex;justify-content:center;align-items:center;
+  background:var(--card-hover);cursor:pointer;transition:background .2s
+}
+.icon-btn svg{
+  width:16px;height:16px;fill:none;stroke:var(--icon);stroke-width:2;
+  pointer-events:none;transition:stroke .2s
+}
+.icon-btn:hover{background:var(--sidebar-hover)}
+.icon-btn:hover svg{stroke:var(--accent)}
+.delete-btn:hover svg{stroke:var(--danger)}
+</style>
 </head>
+
 <body>
-  <div class="menu-button" id="menuBtn"><span></span><span></span><span></span></div>
-  <div class="menu" id="menu">
-    <label for="bg-upload" class="menu-item">背景変更</label>
-    <input type="file" id="bg-upload" accept="image/*" style="display:none" onchange="setCustomBackground(this)" />
-    <button class="menu-item" onclick="resetBackground()">背景リセット</button>
-  </div>
+<!-- Hamburger -->
+<div class="menu-button" id="menuBtn"><span></span><span></span><span></span></div>
 
-  <div class="container">
-    <h1>Todoリスト</h1>
-    <form id="todo-form">
-      <div class="input-container">
-        <textarea id="id_title" placeholder="やることを入力" rows="1"></textarea>
-        <button type="submit" class="add-btn">＋</button>
-      </div>
-    </form>
-    <ul id="task-list" class="task-list"></ul>
-  </div>
+<!-- Sidebar -->
+<div class="menu" id="menu">
+  <label for="bg-upload" class="menu-item">背景変更</label>
+  <input type="file" id="bg-upload" accept="image/*" hidden onchange="setCustomBackground(this)">
+  <button class="menu-item" id="resetBG">背景リセット</button>
+  <hr>
+  <button class="menu-item" id="themeToggle">ダークモード</button>
+</div>
 
-  <script>
-    const DEFAULT_BG = null;
-    let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+<!-- Main -->
+<div class="container">
+  <h1>Todoリスト</h1>
+  <form id="todo-form">
+    <div class="input-container">
+      <textarea id="id_title" placeholder="タスクを入力…（Enter で追加 / Shift+Enter で改行）"></textarea>
+      <!-- 十字を直接書き、flex で中央に -->
+      <button type="submit" class="add-btn" aria-label="追加">＋</button>
+    </div>
+  </form>
+  <ul id="task-list" class="task-list"></ul>
+</div>
 
-    function renderTasks() {
-      const list = document.getElementById("task-list");
-      list.innerHTML = "";
-      tasks.forEach((task, index) => {
-        const li = document.createElement("li");
-        li.className = "task" + (task.completed ? " completed" : "");
+<script>
+/* ---------- data ---------- */
+let tasks=JSON.parse(localStorage.getItem("tasks")||"[]");
+const save=()=>localStorage.setItem("tasks",JSON.stringify(tasks));
+const list=document.getElementById("task-list");
+const textarea=document.getElementById("id_title");
+const autoResize=t=>{t.style.height="auto";t.style.height=`${t.scrollHeight}px`};
 
-        const left = document.createElement("div");
-        left.className = "task-left";
+/* ---------- Task element ---------- */
+const createTask=(t,i)=>{
+  const li=document.createElement("li");li.className="task";
+  setTimeout(()=>li.classList.add("show"),15);
 
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = task.completed;
-        checkbox.addEventListener("change", () => {
-          tasks[index].completed = checkbox.checked;
-          localStorage.setItem("tasks", JSON.stringify(tasks));
-          renderTasks();
-        });
+  const left=document.createElement("div");left.className="task-left";
+  const cb=document.createElement("input");cb.type="checkbox";cb.checked=t.completed;
+  cb.onchange=()=>{tasks[i].completed=cb.checked;save();li.classList.toggle("completed",cb.checked)};
+  const span=document.createElement("span");span.textContent=t.title;
 
-        const span = document.createElement("span");
-        span.textContent = task.title;
+  const right=document.createElement("div");right.className="task-right";
+  const edit=document.createElement("button");edit.className="icon-btn";
+  edit.innerHTML='<svg viewBox="0 0 24 24"><path d="M15 4l5 5-11 11H4v-5Z"/><path d="M13 6l5 5"/></svg>';
+  edit.onclick=()=>{const nt=prompt("新しいタスク内容",t.title);if(nt!==null){tasks[i].title=nt.trim();span.textContent=nt.trim();save()}};
 
-        const right = document.createElement("div");
-        right.className = "task-right";
+  const del=document.createElement("button");del.className="icon-btn delete-btn";
+  del.innerHTML='<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
+  del.onclick=()=>{tasks.splice(i,1);save();li.classList.add("exit");setTimeout(()=>li.remove(),200)};
 
-        const editBtn = document.createElement("button");
-        editBtn.className = "edit-btn";
-        editBtn.innerHTML = "✏️";
-        editBtn.addEventListener("click", () => {
-          const newText = prompt("新しいタスク内容", task.title);
-          if (newText !== null) {
-            tasks[index].title = newText.trim();
-            localStorage.setItem("tasks", JSON.stringify(tasks));
-            renderTasks();
-          }
-        });
+  left.append(cb,span);right.append(edit,del);li.append(left,right);
+  return li;
+};
 
-        const delBtn = document.createElement("button");
-        delBtn.className = "delete-btn";
-        delBtn.innerHTML = "🗑️";
-        delBtn.addEventListener("click", () => {
-          tasks.splice(index, 1);
-          localStorage.setItem("tasks", JSON.stringify(tasks));
-          renderTasks();
-        });
+/* ---------- initial render ---------- */
+const renderAll=()=>{list.innerHTML="";tasks.forEach((t,i)=>list.append(createTask(t,i)))};
+document.addEventListener("DOMContentLoaded",()=>{
+  renderAll();autoResize(textarea);
+  if(localStorage.getItem("theme")==="dark")document.body.classList.add("dark");
+  const bg=localStorage.getItem("background");if(bg)document.body.style.backgroundImage=`url('${bg}')`;
+  new Sortable(list,{animation:120,onEnd:e=>{const [m]=tasks.splice(e.oldIndex,1);tasks.splice(e.newIndex,0,m);save()}});
+});
 
-        left.appendChild(checkbox);
-        left.appendChild(span);
-        right.appendChild(editBtn);
-        right.appendChild(delBtn);
-        li.appendChild(left);
-        li.appendChild(right);
-        list.appendChild(li);
-      });
-    }
+/* ---------- add task ---------- */
+document.getElementById("todo-form").onsubmit=e=>{
+  e.preventDefault();
+  const v=textarea.value.trim();if(!v)return;
+  const idx=tasks.push({title:v,completed:false})-1;save();
+  list.append(createTask(tasks[idx],idx));
+  textarea.value="";autoResize(textarea);
+};
+textarea.addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();e.target.form.requestSubmit()}})
+textarea.addEventListener("input",e=>autoResize(e.target));
 
-    function autoResizeTextarea(textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${textarea.scrollHeight}px`;
-    }
+/* ---------- sidebar toggle ---------- */
+const menu=document.getElementById("menu");
+document.getElementById("menuBtn").onclick=()=>menu.classList.toggle("show");
+document.addEventListener("click",e=>{
+  if(!menu.contains(e.target)&&!e.target.closest('.menu-button'))menu.classList.remove("show")
+});
 
-    document.getElementById("todo-form").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const input = document.getElementById("id_title");
-      const title = input.value.trim();
-      if (!title) return;
-      tasks.push({ title, completed: false });
-      localStorage.setItem("tasks", JSON.stringify(tasks));
-      input.value = "";
-      autoResizeTextarea(input);
-      renderTasks();
-    });
+/* ---------- theme ---------- */
+const thBtn=document.getElementById("themeToggle");
+const setLabel=()=>thBtn.textContent=document.body.classList.contains("dark")?"ライトモード":"ダークモード";
+setLabel();
+thBtn.onclick=()=>{document.body.classList.toggle("dark");localStorage.setItem("theme",document.body.classList.contains("dark")?"dark":"light");setLabel()};
 
-    document.addEventListener("DOMContentLoaded", () => {
-      renderTasks();
-      const input = document.getElementById("id_title");
-      input.addEventListener("input", () => autoResizeTextarea(input));
-      input.addEventListener("keydown", () => setTimeout(() => autoResizeTextarea(input), 0));
-
-      const savedBG = localStorage.getItem("background");
-      if (savedBG) document.body.style.backgroundImage = `url('${savedBG}')`;
-    });
-
-    function setCustomBackground(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        document.body.style.backgroundImage = `url('${e.target.result}')`;
-        localStorage.setItem("background", e.target.result);
-      };
-      reader.readAsDataURL(file);
-    }
-
-    function resetBackground() {
-      document.body.style.backgroundImage = DEFAULT_BG ? `url('${DEFAULT_BG}')` : "none";
-      localStorage.removeItem("background");
-    }
-
-    const menuBtn = document.getElementById("menuBtn");
-    const menu = document.getElementById("menu");
-    menuBtn.addEventListener("click", () => {
-      menu.classList.toggle("show");
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!menu.contains(e.target) && !menuBtn.contains(e.target)) {
-        menu.classList.remove("show");
-      }
-    });
-  </script>
+/* ---------- background ---------- */
+function setCustomBackground(input){
+  if(!input.files[0])return;const r=new FileReader();
+  r.onload=e=>{document.body.style.backgroundImage=`url('${e.target.result}')`;localStorage.setItem("background",e.target.result)};
+  r.readAsDataURL(input.files[0]);
+}
+document.getElementById("resetBG").onclick=()=>{document.body.style.backgroundImage="none";localStorage.removeItem("background")};
+</script>
 </body>
 </html>
