@@ -6,12 +6,12 @@
   <title>Todoリスト</title>
 
   <!-- Google Analytics 4 設定 (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ROPYZSPOYC"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-R0PYZSP0YC"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}  
     gtag('js', new Date());
-    gtag('config', 'G-ROPYZSPOYC');  // ← ご自身の測定IDに置き換えてください
+    gtag('config', 'G-R0PYZSP0YC');  // 測定IDを統一
   </script>
 
   <!-- フォント -->
@@ -70,7 +70,6 @@
     margin-bottom:1.1rem;
     text-align:center;
   }
-  /* ハンバーガー */
   .menu-button{
     position:fixed;top:12px;left:12px;
     width:36px;height:36px;border-radius:6px;
@@ -83,7 +82,6 @@
   }
   .menu-button:hover{background:var(--sidebar-hover);}
   .menu-button span{width:14px;height:2px;border-radius:1px;background:var(--text);}
-  /* サイドバー */
   .menu{
     position:fixed;top:0;left:0;
     width:205px;height:100vh;
@@ -108,7 +106,6 @@
   .menu-item:hover{background:var(--sidebar-hover);}
   .menu hr{border:none;border-top:1px solid rgba(0,0,0,.08);margin:3px 0;}
   body.dark .menu hr{border-top:1px solid #50525e;}
-  /* カード */
   .container{
     width:clamp(320px,94vw,640px);
     margin:72px 0 32px;
@@ -119,7 +116,6 @@
     transition:background .3s;
     text-align:center;
   }
-  /* 入力フォーム */
   .input-container{position:relative;margin-bottom:1.2rem;}
   textarea#id_title{
     width:100%;min-height:34px;resize:none;
@@ -151,7 +147,6 @@
     transform:translateY(-50%) scale(1.05);
     box-shadow:0 6px 12px rgba(0,0,0,.24);
   }
-  /* タスク */
   .task-list{list-style:none;margin:0;padding:0;}
   .task{
     background:var(--card-hover);
@@ -166,7 +161,6 @@
   .task.exit{opacity:0;transform:translateY(5px);}
   .task:hover{background:var(--sidebar-hover);}
   .task-left{display:flex;align-items:center;gap:10px;flex-grow:1;max-width:calc(100% - 84px);}
-  /* カスタムチェック */
   .task-left input[type="checkbox"]{-webkit-appearance:none;appearance:none;width:16px;height:16px;border:2px solid var(--text);border-radius:4px;background:#fff;cursor:pointer;position:relative;}
   .task-left input[type="checkbox"]:checked{background:#000;border-color:#000;}
   .task-left input[type="checkbox"]:checked::after{content:"";position:absolute;top:2px;left:6px;width:3px;height:7px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);}
@@ -181,9 +175,7 @@
   </style>
 </head>
 <body>
-  <!-- ハンバーガー -->
   <div class="menu-button" id="menuBtn"><span></span><span></span><span></span></div>
-  <!-- サイドバー -->
   <div class="menu" id="menu">
     <label for="bg-upload" class="menu-item">背景変更</label>
     <input type="file" id="bg-upload" accept="image/*" hidden onchange="setCustomBackground(this)">
@@ -191,7 +183,6 @@
     <hr>
     <button class="menu-item" id="themeToggle">ダークモード</button>
   </div>
-  <!-- メイン -->
   <div class="container">
     <h1>Todoリスト</h1>
     <form id="todo-form">
@@ -203,76 +194,47 @@
     <ul id="task-list" class="task-list"></ul>
   </div>
   <script>
-    // データロード
     let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
     const save = () => localStorage.setItem("tasks", JSON.stringify(tasks));
     const list = document.getElementById("task-list");
     const textarea = document.getElementById("id_title");
     const autoResize = t => { t.style.height = "auto"; t.style.height = `${t.scrollHeight}px`; };
-
-    // タスク要素作成
     const createTask = (t, i) => {
-      const li = document.createElement("li"); li.className = "task";
-      setTimeout(() => li.classList.add("show"), 15);
-
+      const li = document.createElement("li"); li.className = "task"; setTimeout(() => li.classList.add("show"), 15);
       const left = document.createElement("div"); left.className = "task-left";
       const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = t.completed;
       cb.onchange = () => { tasks[i].completed = cb.checked; save(); li.classList.toggle("completed", cb.checked); };
       const span = document.createElement("span"); span.textContent = t.title;
-
       const right = document.createElement("div"); right.className = "task-right";
       const edit = document.createElement("button"); edit.className = "icon-btn";
       edit.innerHTML = '<svg viewBox="0 0 24 24"><path d="M15 4l5 5-11 11H4v-5Z"/><path d="M13 6l5 5"/></svg>';
-      edit.onclick = () => {
-        const nt = prompt("新しいタスク内容", t.title);
-        if (nt !== null) { tasks[i].title = nt.trim(); span.textContent = nt.trim(); save(); }
-      };  
+      edit.onclick = () => { const nt = prompt("新しいタスク内容", t.title); if (nt !== null) { tasks[i].title = nt.trim(); span.textContent = nt.trim(); save(); }};
       const del = document.createElement("button"); del.className = "icon-btn delete-btn";
       del.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M8 6v-1a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v1"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>';
       del.onclick = () => { tasks.splice(i, 1); save(); li.classList.add("exit"); setTimeout(() => li.remove(), 200); };
-
-      left.append(cb, span);
-      right.append(edit, del);
-      li.append(left, right);
-      return li;
+      left.append(cb, span); right.append(edit, del); li.append(left, right); return li;
     };
-
-    // 全体描画
     const renderAll = () => { list.innerHTML = ""; tasks.forEach((t, idx) => list.append(createTask(t, idx))); };
     document.addEventListener("DOMContentLoaded", () => {
       renderAll(); autoResize(textarea);
-      // テーマ
       if (localStorage.getItem("theme") === "dark") document.body.classList.add("dark");
       document.getElementById("themeToggle").textContent = document.body.classList.contains("dark") ? "ライトモード" : "ダークモード";
-      // 背景画像
       const bg = localStorage.getItem("background"); if (bg) document.body.style.backgroundImage = `url('${bg}')`;
-      // 並び替え
       new Sortable(list, { animation: 120, onEnd: e => { const [m] = tasks.splice(e.oldIndex,1); tasks.splice(e.newIndex,0,m); save(); } });
     });
-
-    // タスク追加
     document.getElementById("todo-form").onsubmit = e => {
-      e.preventDefault();
-      const v = textarea.value.trim(); if (!v) return;
-      const idx = tasks.push({ title: v, completed: false }) - 1; save();
-      list.append(createTask(tasks[idx], idx));
-      textarea.value = ""; autoResize(textarea);
+      e.preventDefault(); const v = textarea.value.trim(); if (!v) return;
+      const idx = tasks.push({ title: v, completed: false }) - 1; save(); list.append(createTask(tasks[idx], idx)); textarea.value = ""; autoResize(textarea);
     };
-    textarea.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); e.target.form.requestSubmit(); } });
+    textarea.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); e.target.form.requestSubmit(); }});
     textarea.addEventListener("input", e => autoResize(e.target));
-
-    // サイドバー開閉
     document.getElementById("menuBtn").onclick = () => document.getElementById("menu").classList.toggle("show");
     document.addEventListener("click", e => { if (!document.getElementById("menu").contains(e.target) && !e.target.closest('.menu-button')) document.getElementById("menu").classList.remove("show"); });
-
-    // テーマ切替
     document.getElementById("themeToggle").onclick = () => {
       document.body.classList.toggle("dark");
       localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
       document.getElementById("themeToggle").textContent = document.body.classList.contains("dark") ? "ライトモード" : "ダークモード";
     };
-
-    // 背景設定
     function setCustomBackground(input) {
       if (!input.files[0]) return;
       const r = new FileReader();
